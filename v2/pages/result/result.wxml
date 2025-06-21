@@ -1,0 +1,141 @@
+<!--result.wxml-->
+<wxs src="../../utils/tools.wxs" module="tools" />
+<view class="page-container container">
+  <view class="header">
+    <text class="title">编织方案</text>
+    <text class="subtitle">最佳打结方式已生成</text>
+  </view>
+
+  <!-- 符号说明模块 (位置提前) -->
+  <view class="card legend-card">
+    <view class="card-title">符号说明</view>
+    <view class="legend-content">
+      <view class="legend-item">
+        <text>1. </text>
+        <text class="legend-symbol">\</text>
+        <text>代表右右，</text>
+        <text class="legend-symbol">/</text>
+        <text>代表左左，</text>
+        <text class="legend-symbol" decode="{{true}}">&lt;</text>
+        <text>代表左右，</text>
+        <text class="legend-symbol" decode="{{true}}">&gt;</text>
+        <text>代表右左。</text>
+      </view>
+      <view class="legend-item">2. 右右、右左为左绳压右绳，左右、左左为右绳压左绳。</view>
+      <view class="legend-item">3. 右右代表向右打结两次，右左代表向右打结一次向左打结一次，左左代表向左打结两次，左右代表向左打结一次向右打结一次。</view>
+      <view class="legend-item">4. 向右打结意为上层那根线尾端水平向右；向左打结意为上层的那根线尾端水平向左。</view>
+    </view>
+  </view>
+
+  <!-- 输入信息卡片 -->
+  <view wx:if="{{inputInfo}}" class="card input-card">
+    <view class="card-title">输入信息</view>
+    
+    <!-- 起始颜色 -->
+    <view class="input-section">
+      <view class="input-label">起始颜色:</view>
+      <view class="start-color-container">
+        <view 
+          wx:for="{{inputInfo.startState}}" 
+          wx:key="index" 
+          wx:for-item="colorHex"
+          class="start-color-line" 
+          style="background-color: {{colorHex}};"
+        ></view>
+      </view>
+    </view>
+    
+    <!-- 目标图案 -->
+    <view class="input-section">
+      <view class="input-label">目标图案:</view>
+      <view class="target-pattern-container">
+        <view 
+          class="target-row" 
+          wx:for="{{inputInfo.targetKnots}}" 
+          wx:key="rowIndex" 
+          wx:for-index="rowIndex"
+          wx:for-item="row"
+        >
+          <text class="target-row-label">第{{rowIndex + 1}}行:</text>
+          <view class="dots-container">
+            <view 
+              wx:for="{{row}}" 
+              wx:key="dotIndex"
+              wx:for-item="dotColor"
+              class="target-knot-dot"
+              style="background-color: {{dotColor}};"
+            ></view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 交错式图解 -->
+  <view wx:if="{{diagramData.length > 0}}" class="card process-card">
+    <view class="card-title">编织过程</view>
+    <view class="interleaved-diagram">
+      <block wx:for="{{diagramData}}" wx:key="index">
+        
+        <!-- 渲染状态 -->
+        <view wx:if="{{item.type === 'state'}}" class="diagram-item state-item">
+          <view class="item-title">状态{{item.stateNumber}}:</view>
+          <view class="state-container" style="--num-strings: {{result.startState.length}};">
+            <!-- 为每根线增加一个 wrapper 用于对齐 -->
+            <view wx:for="{{item.colors}}" wx:key="colorIndex" wx:for-item="colorHex" class="state-rope-wrapper">
+              <view 
+                class="state-rope" 
+                style="background-color: {{colorHex}};"
+              ></view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 渲染编织步骤 -->
+        <view wx:if="{{item.type === 'knot_step'}}" class="diagram-item knot-step-item">
+          <view class="item-title">编织步骤{{item.stepNumber}}:</view>
+          <view class="knot-slots-container" style="--num-strings: {{result.startState.length}};">
+            <!-- 循环渲染卡槽，实现对齐 -->
+            <view wx:for="{{item.slots}}" wx:key="slotIndex" wx:for-item="slot"
+                  class="slot-wrapper {{slot.type === 'knot' ? 'knot-slot' : 'passthrough-slot'}}">
+              <text wx:if="{{slot.type === 'knot'}}" class="knot-symbol" style="color: {{slot.color}};">
+                {{slot.symbol}}
+              </text>
+              <!-- passthrough 卡槽是空的，仅用于占位 -->
+            </view>
+          </view>
+        </view>
+
+      </block>
+    </view>
+  </view>
+
+  <!-- 新增：编织步骤打印卡片 -->
+  <view wx:if="{{result && result.bestSolution.length > 0}}" class="card print-card">
+    <view class="card-title">编织步骤打印</view>
+    <view class="print-content">
+      <view wx:for="{{result.bestSolution}}" wx:key="rowIndex" wx:for-index="rowIndex" wx:for-item="row" class="print-row">
+        <text class="print-row-label">第{{rowIndex + 1}}行:</text>
+        <view class="print-knots-wrapper">
+          <text wx:for="{{row}}" wx:key="knotIndex" wx:for-item="knotType" class="print-knot-type">
+            {{knotType}}
+          </text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 找不到方案的提示 -->
+  <view wx:if="{{!result && diagramData.length === 0}}" class="card">
+      <view class="empty-state">
+          <text class="empty-text">未能找到符合条件的编织方案。</text>
+          <text class="empty-suggestion">请尝试调整起始颜色或目标图案。</text>
+      </view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="action-section">
+    <button class="btn-secondary" bindtap="goBack">返回重新配置</button>
+    <button class="btn-primary" open-type="share">分享方案</button>
+  </view>
+</view> 

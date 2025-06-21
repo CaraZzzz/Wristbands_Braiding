@@ -1,0 +1,101 @@
+<!--index.wxml-->
+<wxs src="../../utils/tools.wxs" module="tools" />
+<view class="container">
+  <view class="header">
+    <text class="title">手绳编织助手</text>
+    <text class="subtitle">根据起始颜色和目标图案生成最佳编织方案</text>
+  </view>
+
+  <!-- 绳子配置 -->
+  <view class="card">
+    <view class="card-title">1. 绳子配置</view>
+    <view class="input-group">
+      <text class="input-label">绳子股数（必须为偶数）</text>
+      <picker mode="selector" range="{{stringCountRange}}" range-key="label" value="{{stringCountIndex}}" bindchange="onStringCountChange">
+        <view class="picker">
+          <text>{{stringCount}}股</text>
+          <text class="picker-arrow">›</text>
+        </view>
+      </picker>
+    </view>
+  </view>
+
+  <!-- 起始颜色配置 -->
+  <view class="card">
+    <view class="card-title">2. 起始颜色配置</view>
+    <view class="color-picker-container">
+      <view 
+        wx:for="{{selectedColors}}" 
+        wx:key="index"
+        class="color-chip" 
+        style="{{tools.getColorStyle(item)}}"
+        data-mode="initial"
+        data-index="{{index}}"
+        bindtap="openColorPicker"
+      >
+        <text style="{{tools.getTextColorStyle(item)}}">{{tools.getColorName(item)}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 目标图案配置 -->
+  <view class="card">
+    <view class="card-title">目标图案配置</view>
+    <view class="pattern-controls">
+      <button class="btn" bindtap="addRow">添加行</button>
+      <button class="btn" bindtap="clearPattern">清空</button>
+    </view>
+    <view class="pattern-rows-container">
+      <view wx:for="{{targetPattern}}" wx:for-item="row" wx:for-index="rowIndex" wx:key="rowIndex" class="pattern-row">
+        <view class="row-header">
+          <text class="row-label">第 {{rowIndex + 1}} 行</text>
+          <button class="btn-delete" data-row-index="{{rowIndex}}" bindtap="removeRow">删除</button>
+        </view>
+        <view class="color-picker-container">
+          <view 
+            wx:for="{{row}}" 
+            wx:for-item="color" 
+            wx:for-index="colIndex" 
+            wx:key="colIndex"
+            class="color-chip" 
+            style="{{tools.getColorStyle(color)}}"
+            data-mode="target"
+            data-row-index="{{rowIndex}}"
+            data-col-index="{{colIndex}}"
+            bindtap="openColorPicker"
+          >
+            <text style="{{tools.getTextColorStyle(color)}}">{{tools.getColorName(color)}}</text>
+          </view>
+          <button class="btn-add-knot" data-row-index="{{rowIndex}}" bindtap="addKnot">+</button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 生成解决方案按钮 -->
+  <view class="generate-section">
+    <button class="btn-generate" bindtap="generateSolution" loading="{{loading}}">生成方案</button>
+  </view>
+
+  <!-- 自定义颜色选择弹窗 -->
+  <view class="popup-overlay" wx:if="{{showColorPicker}}" bindtap="closeColorPicker">
+    <view class="popup-content" catchtap>
+      <view class="popup-header">
+        <text class="popup-title">选择颜色</text>
+        <text class="popup-close" bindtap="closeColorPicker">×</text>
+      </view>
+      <view class="popup-color-grid">
+        <view 
+          wx:for="{{colorOptions}}" 
+          wx:key="item.value" 
+          class="popup-color-option"
+          style="{{tools.getColorStyle(item.value)}}"
+          data-color="{{item.value}}"
+          bindtap="onPopupColorSelect"
+        >
+          <text style="{{tools.getTextColorStyle(item.value)}}">{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view> 

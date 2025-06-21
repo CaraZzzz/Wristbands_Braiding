@@ -1,0 +1,37 @@
+var colorMap = {
+  R: { name: '红色', color: '#FF0000' },
+  B: { name: '蓝色', color: '#0000FF' },
+  G: { name: '绿色', color: '#00FF00' },
+  Y: { name: '黄色', color: '#FFFF00' },
+  W: { name: '白色', color: '#FFFFFF' },
+  K: { name: '黑色', color: '#000000' },
+  P: { name: '紫色', color: '#800080' },
+  O: { name: '橙色', color: '#FFA500' }
+};
+
+var getColorStyle = function(colorValue) {
+  if (!colorValue || !colorMap[colorValue]) return '';
+  var details = colorMap[colorValue];
+  if (colorValue === 'W') {
+    return 'background-color: ' + details.color + '; border: 1rpx solid #ccc;';
+  }
+  return 'background-color: ' + details.color;
+}
+
+var getTextColorStyle = function(colorValue) {
+    if (colorValue === 'W' || colorValue === 'Y' || colorValue === 'G') {
+        return 'color: #333;';
+    }
+    return 'color: white;';
+}
+
+var getColorName = function(colorValue) {
+  if (!colorValue || !colorMap[colorValue]) return colorValue;
+  return colorMap[colorValue].name;
+}
+
+module.exports = {
+  getColorStyle: getColorStyle,
+  getColorName: getColorName,
+  getTextColorStyle: getTextColorStyle
+}; 
